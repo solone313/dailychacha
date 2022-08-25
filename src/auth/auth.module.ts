@@ -13,7 +13,7 @@ import { JwtStrategy } from './security/passport.strategy';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     JwtModule.register({
       secret: 'SECRET',
-      signOptions: { expiresIn: '300s'},
+      signOptions: { expiresIn: '90d'},
     }),    
     PassportModule.register({defaultStrategy: 'jwt'}),
   ],
