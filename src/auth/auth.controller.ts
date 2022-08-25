@@ -19,7 +19,7 @@ export class AuthController {
     @Post('/sign-in')
     async signin(@Body() userDTO: UserDTO, @Res() res: Response): Promise<any>{
         const jwt = await this.authService.validateUser(userDTO);
-        res.setHeader('Authorization', 'Bearer '+jwt.accessToken);
+        resp.setHeader('Authorization', 'Bearer '+jwt.accessToken);
         return res.json(jwt); // 로그인 시 토큰 리턴
     }
 
