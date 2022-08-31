@@ -30,22 +30,23 @@ export class AppleService{
         const decodedToken = jwt.decode(appleIdToken, { complete: true }) as {
             header: { kid: string; alg: jwt.Algorithm };
             payload: { sub: string };
-    };
-    const keyIdFromToken = decodedToken.header.kid;
+        };
 
-    const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
+        const keyIdFromToken = decodedToken.header.kid;
 
-    const jwksClient = new JwksClient({ jwksUri: applePublicKeyUrl });
+        const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
 
-    const key = await jwksClient.getSigningKey(keyIdFromToken); // header의 kid로 signinKey 가져옴
-    const publicKey = key.getPublicKey(); // signinKey에서 publicKey 추출
+        const jwksClient = new JwksClient({ jwksUri: applePublicKeyUrl });
 
-    // appleIdToken과 publicKey로 id_token을 검증
-    const verifiedDecodedToken: AppleJwtTokenPayload = jwt.verify(appleIdToken, publicKey, {
-        algorithms: [decodedToken.header.alg]
-    }) as AppleJwtTokenPayload;
+        const key = await jwksClient.getSigningKey(keyIdFromToken); // header의 kid로 signinKey 가져옴
+        const publicKey = key.getPublicKey(); // signinKey에서 publicKey 추출
 
-    return verifiedDecodedToken; // 검증된 토큰의 payload 반환
+        // appleIdToken과 publicKey로 id_token을 검증
+        const verifiedDecodedToken: AppleJwtTokenPayload = jwt.verify(appleIdToken, publicKey, {
+            algorithms: [decodedToken.header.alg]
+        }) as AppleJwtTokenPayload;
+
+        return verifiedDecodedToken; // 검증된 토큰의 payload 반환
     }
 }
 
@@ -71,13 +72,9 @@ export class AppleSigninService{
     }
 
     // 애플 로그인 (decoding한 email을 이용한 JWT 생성)
-    async validateUser(decodedEmail): Promise<{accessToken: string} | undefined>{
-        let userFind: User = await this.userService.findByFields({
-            where: { email: decodedEmail}
-        })
-
+    async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
         // 새로운 jwt 토큰의 payload 생성
-        const payload: ApplePayload = { email: userFind.email };
+        const payload = decodedEmail;
         return {
             accessToken: this.jwtService.sign(payload)
         };

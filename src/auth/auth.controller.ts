@@ -1,6 +1,6 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import { AppleService, AppleSigninService } from './apple.service';
 import { AuthService } from './auth.service';
 import { AppleEmailDTO } from './dto/apple-email.dto';
@@ -33,7 +33,7 @@ export class AuthController {
     @Post('/apple-sign-in')
     async appleSignin(@Body() appleDTO: AppleEmailDTO, @Res() resp: Response): Promise<any>{
         const decodedEmail = this.appleSigninService.getDecodedEmail(appleDTO); // 디코딩된 email claim 추출
-        const jwt = await this.appleSigninService.validateUser(decodedEmail); // jwt 토큰 생성
+        const jwt = await this.appleSigninService.createToken(decodedEmail); // jwt 토큰 생성
         resp.setHeader('Authorization', 'Bearer '+jwt.accessToken);
         return resp.json(jwt);
     }
