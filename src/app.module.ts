@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { env } from 'process';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { User } from './auth/entity/user.entity';
 import { UserRepository } from './auth/user.repository';
 import { TypeOrmExModule } from './db/typeorm-ex.decorator';
 
@@ -11,11 +11,11 @@ import { TypeOrmExModule } from './db/typeorm-ex.decorator';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: env.DB_HOST,
       port: 3306,
-      username: 'root',
-      password: '0000',
-      database: 'test',
+      username: env.DB_USER,
+      password: env.DB_PASS,
+      database: env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),

@@ -45,6 +45,7 @@ export class AuthService {
         };
     }
 
+
     // 유저의 토큰 검증
     async tokenValidateUser(payload: Payload): Promise<User | undefined>{
         return await this.userService.findByFields({
