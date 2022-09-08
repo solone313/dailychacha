@@ -1,3 +1,3 @@
-export class AppleEmailDTO{
-    email: string;
+export class AppleTokenDTO{
+    token:string;
 }
