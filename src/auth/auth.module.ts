@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './security/passport.strategy';
+import { AppleService, AppleSigninService } from './apple.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { JwtStrategy } from './security/passport.strategy';
   ],
   exports: [TypeOrmExModule],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtModule, JwtStrategy]
+  providers: [AuthService, UserService, JwtModule, JwtStrategy, AppleService, AppleSigninService]
 })
 export class AuthModule {}
