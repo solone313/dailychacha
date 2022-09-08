@@ -31,8 +31,8 @@ export class AuthController {
     // 애플 로그인
     @Post('/apple-sign-in')
     async appleSignin(@Body() appleIdToken:AppleTokenDTO, @Res() resp: Response): Promise<any>{
-        const decodedEmail = this.appleSigninService.getDecodedEmail(appleIdToken); // 디코딩된 email claim 추출
-        console.log(decodedEmail);
+        const decodedEmail = await this.appleSigninService.getDecodedEmail(appleIdToken); // 디코딩된 email claim 추출
+
         const jwt = await this.appleSigninService.createToken(decodedEmail); // jwt 토큰 생성
         resp.setHeader('Authorization', 'Bearer '+jwt.accessToken);
         return resp.json(jwt);
