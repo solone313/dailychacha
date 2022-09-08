@@ -51,7 +51,7 @@
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/parser": "^5.36.2",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.2",
     "eslint": "^8.23.0",

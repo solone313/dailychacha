@@ -1,7 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
-import { AppleEmailDTO } from './dto/apple-email.dto';
 import { BadRequestException } from '@nestjs/common';
 
 interface AppleJwtTokenPayload {

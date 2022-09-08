@@ -1,9 +1,8 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
-import { AppleService, AppleSigninService } from './apple.service';
+import { AppleSigninService } from './apple.service';
 import { AuthService } from './auth.service';
-import { AppleEmailDTO } from './dto/apple-email.dto';
 import { UserDTO } from './dto/user.dto';
 
 @Controller('auth')
