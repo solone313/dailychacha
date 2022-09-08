@@ -31,7 +31,6 @@ export class AppleService{
             payload: { sub: string };
         };
 
-
         const keyIdFromToken = decodedToken.header.kid;
 
         const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
@@ -59,32 +58,10 @@ export class AppleSigninService{
 
     // apple id_token의 payload로부터 Email 추출
     async getDecodedEmail(appleIdToken: AppleTokenDTO ): Promise<string>{
-        console.log("apple id token : ", appleIdToken);
+        console.log(appleIdToken);
 
-        // const applePayload = await this.appleService.verifyAppleToken(appleIdToken); // 디코딩된 apple의 payload
-
-        const decodedToken = jwt.decode(appleIdToken.token, { complete: true }) as {
-            header: { kid: string; alg: jwt.Algorithm };
-            payload: { sub: string };
-        };
-
-
-        const keyIdFromToken = decodedToken.header.kid;
-
-        const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
-
-        const jwksClient = new JwksClient({ jwksUri: applePublicKeyUrl });
-
-        const key = await jwksClient.getSigningKey(keyIdFromToken); // header의 kid로 signinKey 가져옴
-        const publicKey = key.getPublicKey(); // signinKey에서 publicKey 추출
-
-        // appleIdToken과 publicKey로 id_token을 검증
-        const verifiedDecodedToken: AppleJwtTokenPayload = jwt.verify(appleIdToken.token, publicKey, {
-            algorithms: [decodedToken.header.alg]
-        }) as AppleJwtTokenPayload;
-
-        const applePayload = verifiedDecodedToken; // 검증된 토큰의 payload 반환
-
+        const applePayload = await this.appleService.verifyAppleToken(appleIdToken); // 디코딩된 apple의 payload
+        
         const decodedEmail = applePayload.email;
         const decodedEmailVerified = applePayload.email_verified;
         if(decodedEmailVerified != 'true'){
@@ -98,7 +75,6 @@ export class AppleSigninService{
     async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
         // 새로운 jwt 토큰의 payload 생성
         const payload = decodedEmail;
-        console.log('payload: ',payload);
         return {
             accessToken: this.jwtService.sign(payload)
         };
