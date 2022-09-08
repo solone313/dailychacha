@@ -10,7 +10,6 @@ import { UserDTO } from './dto/user.dto';
 export class AuthController {
     constructor(
         private authService: AuthService,
-        private appleService: AppleService,
         private appleSigninService: AppleSigninService
         ){}
 
@@ -31,8 +30,9 @@ export class AuthController {
 
     // 애플 로그인
     @Post('/apple-sign-in')
-    async appleSignin(@Body() appleDTO: AppleEmailDTO, @Res() resp: Response): Promise<any>{
-        const decodedEmail = this.appleSigninService.getDecodedEmail(appleDTO); // 디코딩된 email claim 추출
+    async appleSignin(@Body() appleIdToken, @Res() resp: Response): Promise<any>{
+        const decodedEmail = this.appleSigninService.getDecodedEmail(appleIdToken); // 디코딩된 email claim 추출
+        console.log(decodedEmail);
         const jwt = await this.appleSigninService.createToken(decodedEmail); // jwt 토큰 생성
         resp.setHeader('Authorization', 'Bearer '+jwt.accessToken);
         return resp.json(jwt);
@@ -49,8 +49,8 @@ export class AuthController {
     // 유저 정보 가져오기
     @Get('/user')
     @UseGuards(AuthGuard())
-    getUser(@Req() req: Request):any{
+    getUser(@Req() req: Request, @Res() resp: Response):any{
         const user: any=req.user;
-        return user;
+        return resp.json([{"email": user.email, "user_id":user.user_id}]);
     }
 }

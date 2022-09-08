@@ -1,9 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
-import { User } from './entity/user.entity';
-import { UserService } from './user.service';
-import { ApplePayload } from './security/payload.interface';
 import { AppleEmailDTO } from './dto/apple-email.dto';
 import { BadRequestException } from '@nestjs/common';
 
@@ -25,7 +22,6 @@ interface AppleJwtTokenPayload {
 export class AppleService{
     
     async verifyAppleToken(appleIdToken: string): Promise<AppleJwtTokenPayload> {
-
         // id_token 디코딩
         const decodedToken = jwt.decode(appleIdToken, { complete: true }) as {
             header: { kid: string; alg: jwt.Algorithm };
@@ -53,15 +49,16 @@ export class AppleService{
 export class AppleSigninService{
     constructor(
         private appleService : AppleService,
-        private userService : UserService,
         private jwtService : JwtService
     ){}
 
     // apple id_token의 payload로부터 Email 추출
-    async getDecodedEmail(appleDTO: AppleEmailDTO): Promise<any>{
-        const { email } = appleDTO;
-        const applePayload = await this.appleService.verifyAppleToken(email); // 디코딩된 apple의 payload
+    async getDecodedEmail(appleIdToken: string): Promise<string>{
+        console.log('apple id token : ' , appleIdToken);
+        const applePayload = await this.appleService.verifyAppleToken(appleIdToken); // 디코딩된 apple의 payload
         
+        console.log(applePayload);
+
         const decodedEmail = applePayload.email;
         const decodedEmailVerified = applePayload.email_verified;
         if(decodedEmailVerified != 'true'){
@@ -75,6 +72,7 @@ export class AppleSigninService{
     async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
         // 새로운 jwt 토큰의 payload 생성
         const payload = decodedEmail;
+        console.log('payload : ', payload);
         return {
             accessToken: this.jwtService.sign(payload)
         };
