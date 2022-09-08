@@ -53,10 +53,8 @@ export class AppleSigninService{
 
     // apple id_token의 payload로부터 Email 추출
     async getDecodedEmail(appleIdToken: string): Promise<string>{
-        console.log('apple id token : ' , appleIdToken);
+
         const applePayload = await this.appleService.verifyAppleToken(appleIdToken); // 디코딩된 apple의 payload
-        
-        console.log(applePayload);
 
         const decodedEmail = applePayload.email;
         const decodedEmailVerified = applePayload.email_verified;
@@ -71,7 +69,6 @@ export class AppleSigninService{
     async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
         // 새로운 jwt 토큰의 payload 생성
         const payload = decodedEmail;
-        console.log('payload : ', payload);
         return {
             accessToken: this.jwtService.sign(payload)
         };
