@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
@@ -19,6 +20,7 @@ interface AppleJwtTokenPayload {
     nonce_supported: boolean;
   }
 
+@Injectable()
 export class AppleService{
     
     async verifyAppleToken(appleIdToken: AppleTokenDTO): Promise<AppleJwtTokenPayload> {
@@ -48,6 +50,7 @@ export class AppleService{
     }
 }
 
+@Injectable()
 export class AppleSigninService{
     constructor(
         private appleService : AppleService,
