@@ -3,7 +3,6 @@ import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AppleService } from "./apple.service";
 import { AppleTokenDTO } from "./dto/apple-email.dto";
-import { User } from "./entity/user.entity";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
 import { BadRequestException } from '@nestjs/common';
@@ -34,14 +33,8 @@ export class AppleSigninService{
 
     // apple id_token의 payload로부터 Email 추출
     async getDecodedEmail(appleIdToken: AppleTokenDTO): Promise<string>{
-        console.log('appleIdToken : ', appleIdToken);
-
         const applePayload = await this.appleService.verifyAppleToken(appleIdToken.token); // 디코딩된 apple의 payload
-        console.log('apple payload : ', applePayload);
-
         const decodedEmail = applePayload.email;
-        console.log('decoded Email : ', decodedEmail);
-
         const decodedEmailVerified = applePayload.email_verified;
         if(decodedEmailVerified != 'true'){
             throw new BadRequestException('인증되지 않은 이메일입니다.');

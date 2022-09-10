@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
 import { BadRequestException } from '@nestjs/common';
-import { AppleTokenDTO } from './dto/apple-email.dto';
 import { UserService } from './user.service';
-import { User } from './entity/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from './user.repository';
-import { AppleSigninService } from './appleSignin.service';
 import { AppleUserDTO } from './dto/appleUser.dto';
 import { UserDTO } from './dto/user.dto';
 
@@ -58,8 +53,7 @@ export class AppleService{
         console.log('email : ', decodedToken.payload["email"]);
         const decodedEemail = decodedToken.payload["email"];
 
-        const result = await this.verifyUser({"email": decodedEemail});
-        // this.appleSigninService.verifyUser(decodedEemail);
+        await this.verifyUser({"email": decodedEemail});
         
         const keyIdFromToken = decodedToken.header.kid;
         
