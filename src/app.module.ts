@@ -9,7 +9,17 @@ import { TypeOrmExModule } from './db/typeorm-ex.decorator';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({ useFactory: ormConfig}),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '0000',
+      database: 'test',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    // TypeOrmModule.forRootAsync({ useFactory : ormConfig }),
     TypeOrmExModule.forCustomRepository([UserRepository]),
     AuthModule,
   ],

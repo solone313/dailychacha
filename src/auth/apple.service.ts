@@ -4,6 +4,13 @@ import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
 import { BadRequestException } from '@nestjs/common';
 import { AppleTokenDTO } from './dto/apple-email.dto';
+import { UserService } from './user.service';
+import { User } from './entity/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserRepository } from './user.repository';
+import { AppleSigninService } from './appleSignin.service';
+import { AppleUserDTO } from './dto/appleUser.dto';
+import { UserDTO } from './dto/user.dto';
 
 interface AppleJwtTokenPayload {
     iss: string;
@@ -22,61 +29,57 @@ interface AppleJwtTokenPayload {
 
 @Injectable()
 export class AppleService{
-    
-    async verifyAppleToken(appleIdToken: AppleTokenDTO): Promise<AppleJwtTokenPayload> {
-        // id_token 디코딩
-        const idToken = appleIdToken.token;
-        const decodedToken = jwt.decode(idToken, { complete: true }) as {
+    constructor(
+        private userRepository : UserRepository,
+        private userService : UserService,
+    ){}
+
+    async verifyUser(appleUserDTO: AppleUserDTO): Promise<any>{
+        const userFind: UserDTO = await this.userService.find_ByFields({
+            where: { email: appleUserDTO.email}
+        })
+        // DB에 저장되어 있지 유저라면
+        if(!userFind){
+            console.log(appleUserDTO.email, ' DB 에 저장완료 ');
+            return this.userRepository.save({ "email" : appleUserDTO.email, "password" : null });
+        }
+        return true;
+    }
+
+
+    async verifyAppleToken(appleIdToken: string): Promise<AppleJwtTokenPayload> {
+
+        const decodedToken = jwt.decode(appleIdToken, { complete: true }) as {
             header: { kid: string; alg: jwt.Algorithm };
             payload: { sub: string };
         };
 
+        console.log('decoded Token : ', decodedToken);
+        console.log('email : ', decodedToken.payload["email"]);
+        const decodedEemail = decodedToken.payload["email"];
+
+        const result = await this.verifyUser({"email": decodedEemail});
+        // this.appleSigninService.verifyUser(decodedEemail);
+        
         const keyIdFromToken = decodedToken.header.kid;
-
+        
         const applePublicKeyUrl = 'https://appleid.apple.com/auth/keys';
-
         const jwksClient = new JwksClient({ jwksUri: applePublicKeyUrl });
+        console.log('jwksClient : ' , jwksClient)
 
         const key = await jwksClient.getSigningKey(keyIdFromToken); // header의 kid로 signinKey 가져옴
+        console.log('key : ', key);
         const publicKey = key.getPublicKey(); // signinKey에서 publicKey 추출
 
         // appleIdToken과 publicKey로 id_token을 검증
-        const verifiedDecodedToken: AppleJwtTokenPayload = jwt.verify(idToken, publicKey, {
-            algorithms: [decodedToken.header.alg]
-        }) as AppleJwtTokenPayload;
-
-        return verifiedDecodedToken; // 검증된 토큰의 payload 반환
-    }
-}
-
-@Injectable()
-export class AppleSigninService{
-    constructor(
-        private appleService : AppleService,
-        private jwtService : JwtService
-    ){}
-
-    // apple id_token의 payload로부터 Email 추출
-    async getDecodedEmail(appleIdToken: AppleTokenDTO ): Promise<string>{
-        console.log(appleIdToken);
-
-        const applePayload = await this.appleService.verifyAppleToken(appleIdToken); // 디코딩된 apple의 payload
-        
-        const decodedEmail = applePayload.email;
-        const decodedEmailVerified = applePayload.email_verified;
-        if(decodedEmailVerified != 'true'){
-            throw new BadRequestException('인증되지 않은 이메일입니다.');
+        try{
+            return jwt.verify(appleIdToken, publicKey, {
+                algorithms: [decodedToken.header.alg]
+            }) as AppleJwtTokenPayload;
+        }catch(err){
+            if (err instanceof jwt.TokenExpiredError){
+                throw new BadRequestException('다시 로그인이 필요합니다.(Token Expired)');
+            }
         }
-
-        return decodedEmail;
-    }
-
-    // 애플 로그인 (decoding한 email을 이용한 JWT 생성)
-    async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
-        // 새로운 jwt 토큰의 payload 생성
-        const payload = decodedEmail;
-        return {
-            accessToken: this.jwtService.sign(payload)
-        };
     }
 }
