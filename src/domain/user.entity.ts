@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('user')
+@Entity('users')
 export class User{
     @PrimaryGeneratedColumn()
     user_id: number;
@@ -8,9 +8,21 @@ export class User{
     @Column()
     email: string;
 
-    @Column({'default': null})
+    @Column()
     password: string;
 
-    @Column({'default':false})
-    IsOnboardingCompleted : boolean;
+    @Column({ nullable: true })
+    access_token: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    expired_at: Date;
+
+    @Column({ nullable: true, default: 0 })
+    is_onboarding_completed: boolean;
+
+    @Column({default: 1})
+    level: number;
+    
+    @Column({default: 0})
+    experience: number;
 }
