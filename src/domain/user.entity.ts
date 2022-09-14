@@ -8,6 +8,9 @@ export class User{
     @Column()
     email: string;
 
-    @Column()
+    @Column({'default': null})
     password: string;
+
+    @Column({'default':false})
+    IsOnboardingCompleted : boolean;
 }
