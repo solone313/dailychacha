@@ -11,7 +11,6 @@ function ormConfig(): TypeOrmModuleOptions{
         },
         MIGRATIONS_RUN : false,
     };
-
     const ormconfig : TypeOrmModuleOptions = {
         type: 'mysql',
         host: env.DB_HOST,

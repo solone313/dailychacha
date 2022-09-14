@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './entity/user.entity';
+import { User } from 'src/domain/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +16,7 @@ export class AuthService {
     // 새로운 유저 등록
     async registerUser(newUser:UserDTO): Promise<UserDTO>{
         // 이미 등록되어 있는 이메일이 있는지 탐색
-        const userFind: UserDTO = await await this.userService.findByFields({
+        const userFind: UserDTO = await this.userService.findByFields({
             where: {email: newUser.email}
         });
         // 탐색되었다면, Bad Request 오류 처리 (HTTP상태 코드 400)
@@ -30,12 +30,14 @@ export class AuthService {
     // 로그인
     async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined>{
         const userFind: User = await this.userService.findByFields({
-            where: { email: userDTO.email}
+            where: { email : userDTO.email }
         })
-        const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
+        if(!userFind){  // 해당 이메일로 가입된 유저가 없는 경우
+            throw new UnauthorizedException("로그인 실패");
+        }
 
-        // 사용자를 찾지 못한 경우와 비밀번호가 올바르지 않은 경우
-        if(!userFind || !validatePassword ){
+        const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
+        if(!validatePassword ){ // 비밀번호가 올바르지 않은 경우
             throw new UnauthorizedException('로그인 실패');
         }
 

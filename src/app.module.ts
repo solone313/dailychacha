@@ -9,7 +9,7 @@ import { TypeOrmExModule } from './db/typeorm-ex.decorator';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({ useFactory: ormConfig}),
+    TypeOrmModule.forRootAsync({ useFactory : ormConfig }),
     TypeOrmExModule.forCustomRepository([UserRepository]),
     AuthModule,
   ],

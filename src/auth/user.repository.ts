@@ -1,6 +1,6 @@
 import { CustomRepository } from "src/db/typeorm-ex.module";
+import { User } from "src/domain/user.entity";
 import { Repository } from "typeorm";
-import { User } from "./entity/user.entity";
 
 @CustomRepository(User)
 export class UserRepository extends Repository<User>{}
