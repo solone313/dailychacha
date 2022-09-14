@@ -4,7 +4,7 @@ import { env } from "process";
 function ormConfig(): TypeOrmModuleOptions{
     const commonConf = {
         SYNCHRONIZE : true,    // DB 자동 업데이트
-        ENTITIES : [__dirname + '/domain/*.entity{.ts,.js}'],
+        ENTITIES : [__dirname + '/../**/*.entity.{js,ts}'],
         MIGRATIONS : [__dirname + '/migrations/**/*.{.ts,.js}'],
         CLI : {
             migrationsDir: 'src/migrations',
