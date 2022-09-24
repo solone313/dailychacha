@@ -15,7 +15,7 @@ import { AppleSigninService } from './appleSignin.service';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     JwtModule.register({
       secret: 'SECRET',
-      signOptions: { expiresIn: '90d'},
+      // signOptions: { expiresIn: '90d'},
     }),    
     PassportModule.register({defaultStrategy: 'jwt'})
   ],

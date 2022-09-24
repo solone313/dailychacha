@@ -1,16 +1,19 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserDTO } from './dto/user.dto';
+import { UpdateUserDTO, UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
-import { Payload } from './security/payload.interface';
+import { Payload, signinPayload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/domain/user.entity';
+import { access } from 'fs';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService:UserService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private userRepository: UserRepository,
     ){}
 
     // 새로운 유저 등록
@@ -28,7 +31,7 @@ export class AuthService {
     }
 
     // 로그인
-    async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined>{
+    async validateUser(userDTO: UserDTO): Promise<string | undefined>{
         const userFind: User = await this.userService.findByFields({
             where: { email : userDTO.email }
         })
@@ -36,16 +39,31 @@ export class AuthService {
             throw new UnauthorizedException("로그인 실패");
         }
 
+        // validate password (bcrypt)
         const validatePassword = await bcrypt.compare(userDTO.password, userFind.password);
         if(!validatePassword ){ // 비밀번호가 올바르지 않은 경우
-            throw new UnauthorizedException('로그인 실패');
+            throw new UnauthorizedException('올바르지 않은 비밀번호');
         }
 
-        const payload: Payload = { user_id: userFind.user_id, email: userFind.email };
-        return {
-            accessToken: this.jwtService.sign(payload)
-        };
+        return this.createJWT(userFind);
     }
+
+    // create JWT
+    async createJWT(user : User): Promise<string>{
+        const date = new Date();
+        date.setHours(date.getHours() + 702*3);
+    
+        const payload: signinPayload = { email: user.email};
+        const accessToken = this.jwtService.sign(payload);
+        // accessToken, expired_date 업데이트 (delete 후 다시 push 필요)
+        /*
+        this.userRepository.save({
+            access_token : accessToken,
+            expired_at : date
+        })
+        */
+        return accessToken;
+    } 
 
 
     // 유저의 토큰 검증

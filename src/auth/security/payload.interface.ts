@@ -3,6 +3,10 @@ export interface Payload{
     email: string;
 }
 
+export interface signinPayload{
+    email: string;
+}
+
 export interface ApplePayload{
     email: string;
 }

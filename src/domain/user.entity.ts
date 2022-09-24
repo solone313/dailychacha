@@ -8,10 +8,10 @@ export class User{
     @Column()
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     password: string;
 
-    @Column({ nullable: true })
+    @Column({ type : 'text',  nullable: true })
     access_token: string;
 
     @Column({ type: 'timestamp', nullable: true })

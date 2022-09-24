@@ -1,17 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOneOptions } from "typeorm";
-import { UserDTO } from "./dto/user.dto";
+import {  CreateUserDTO, UpdateUserDTO, UserDTO } from "./dto/user.dto";
 import { UserRepository } from "./user.repository";
 import * as bcrypt from 'bcrypt';
 import { AppleUserDTO } from "./dto/appleUser.dto";
 import { User } from "src/domain/user.entity";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class UserService{
     constructor(
         @InjectRepository(UserRepository)
-        private userRepository: UserRepository
+        private userRepository: UserRepository,
         ){}
 
         // 등록이 된 유저인지 확인
@@ -25,10 +26,10 @@ export class UserService{
 
 
         // 신규 유저 등록
-        async save(userDTO: UserDTO): Promise<UserDTO | undefined>{
+        async save(userDTO: UserDTO): Promise<CreateUserDTO | undefined>{
             await this.transformPassword(userDTO);
             console.log(userDTO);
-            return await this.userRepository.save(userDTO);
+            return this.userRepository.save(userDTO);
         }
 
         // 비밀번호 암호화 (saltround를 10으로 지정)

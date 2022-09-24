@@ -36,7 +36,7 @@ export class AppleService{
         // DB에 저장되어 있지 유저라면
         if(!userFind){
             console.log(appleUserDTO.email, ' DB 에 저장완료 ');
-            return this.userRepository.save({ "email" : appleUserDTO.email, "password" : null });
+            return this.userRepository.save({ email : appleUserDTO.email });
         }
         return true;
     }

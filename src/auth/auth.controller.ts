@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { AppleSigninService } from './appleSignin.service';
 import { AuthService } from './auth.service';
 import { AppleTokenDTO } from './dto/apple-email.dto';
-import { UserDTO } from './dto/user.dto';
+import { CreateUserDTO, UserDTO } from './dto/user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,15 +16,15 @@ export class AuthController {
      // 회원가입
     @Post('/sign-up') 
     async signup(
-        @Req() req: Request, @Body() UserDTO: UserDTO): Promise<UserDTO>{
-            return await this.authService.registerUser(UserDTO);
+        @Req() req: Request, @Body() userDTO: UserDTO): Promise<UserDTO>{
+            return await this.authService.registerUser(userDTO);
         } 
 
     // 로그인
     @Post('/sign-in')
     async signin(@Body() userDTO: UserDTO, @Res() resp: Response): Promise<any>{
         const jwt = await this.authService.validateUser(userDTO);
-        resp.setHeader('Authorization', 'Bearer '+jwt.accessToken);
+        resp.setHeader('Authorization', 'Bearer '+jwt);
         return resp.json(jwt); // 로그인 시 토큰 리턴
     }
 
