@@ -17,6 +17,7 @@ export class AppleSigninService{
         private userService : UserService,
     ){}
 
+    // DB에서 유저 조회 후 저장 및 update
     async verifyUser(appleUserDTO: CreateAppleUserDTO): Promise<any>{
         const userFind: UserDTO = await this.userService.find_ByFields({
             where: { email: appleUserDTO.email}
@@ -26,6 +27,11 @@ export class AppleSigninService{
             console.log(appleUserDTO.email, ' DB 에 저장완료 ');
             const date = new Date();
             date.setHours(date.getHours()+720*3);
+            console.log( {
+                email : appleUserDTO.email,
+                expired_at : date,  
+                access_token : appleUserDTO.access_token
+            });
             return this.userRepository.save(
                 {
                     email : appleUserDTO.email,

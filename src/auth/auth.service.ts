@@ -4,16 +4,14 @@ import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 import { Payload, signinPayload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/domain/user.entity';
-import { access } from 'fs';
-import { UserRepository } from './user.repository';
+import { Users } from 'src/domain/user.entity';
+import { create } from 'domain';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService:UserService,
         private jwtService: JwtService,
-        private userRepository: UserRepository,
     ){}
 
     // 새로운 유저 등록
@@ -31,8 +29,9 @@ export class AuthService {
     }
 
     // 로그인
-    async validateUser(userDTO: UserDTO): Promise<string | undefined>{
-        const userFind: User = await this.userService.findByFields({
+
+    async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined>{
+        const userFind: Users = await this.userService.findByFields({
             where: { email : userDTO.email }
         })
         if(!userFind){  // 해당 이메일로 가입된 유저가 없는 경우
@@ -44,12 +43,15 @@ export class AuthService {
         if(!validatePassword ){ // 비밀번호가 올바르지 않은 경우
             throw new UnauthorizedException('올바르지 않은 비밀번호');
         }
-
-        return this.createJWT(userFind);
+        
+        return {
+            accessToken: await this.createJWT(userFind)
+        };
     }
 
-    // create JWT
-    async createJWT(user : User): Promise<string>{
+
+    // create JWT and update Access Token, expired_at
+    async createJWT(user : Users): Promise<string>{
         const date = new Date();
         date.setHours(date.getHours() + 702*3);
     
@@ -67,7 +69,7 @@ export class AuthService {
 
 
     // 유저의 토큰 검증
-    async tokenValidateUser(payload: Payload): Promise<User | undefined>{
+    async tokenValidateUser(payload: Payload): Promise<Users | undefined>{
         return await this.userService.findByFields({
             where: { email:payload.email }
         })
