@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/domain/user.entity';
+import { Users } from 'src/domain/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +29,7 @@ export class AuthService {
 
     // 로그인
     async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined>{
-        const userFind: User = await this.userService.findByFields({
+        const userFind: Users = await this.userService.findByFields({
             where: { email : userDTO.email }
         })
         if(!userFind){  // 해당 이메일로 가입된 유저가 없는 경우
@@ -41,7 +41,7 @@ export class AuthService {
             throw new UnauthorizedException('로그인 실패');
         }
 
-        const payload: Payload = { user_id: userFind.user_id, email: userFind.email };
+        const payload: Payload = { user_id: userFind.id, email: userFind.email };
         return {
             accessToken: this.jwtService.sign(payload)
         };
@@ -49,7 +49,7 @@ export class AuthService {
 
 
     // 유저의 토큰 검증
-    async tokenValidateUser(payload: Payload): Promise<User | undefined>{
+    async tokenValidateUser(payload: Payload): Promise<Users | undefined>{
         return await this.userService.findByFields({
             where: { email:payload.email }
         })
