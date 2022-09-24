@@ -1,28 +1,38 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('users')
-export class User{
-    @PrimaryGeneratedColumn()
-    user_id: number;
+@Index("email", ["email"], { unique: true })
+@Entity("users", { schema: "dailychacha" })
+export class Users {
+  @PrimaryGeneratedColumn({ type: "int", name: "id" })
+  id: number;
 
-    @Column()
-    email: string;
+  @Column("varchar", { name: "email", unique: true, length: 320 })
+  email: string;
 
-    @Column()
-    password: string;
+  @Column("char", { name: "password", nullable: true, length: 60 })
+  password: string | null;
 
-    @Column({ nullable: true })
-    access_token: string;
+  @Column("timestamp", { name: "expired_at", nullable: true })
+  expiredAt: Date | null;
 
-    @Column({ type: 'timestamp', nullable: true })
-    expired_at: Date;
+  @Column("tinyint", {
+    name: "is_onboarding_completed",
+    nullable: true,
+    width: 1,
+    default: () => "'0'",
+  })
+  isOnboardingCompleted: boolean | null;
 
-    @Column({ nullable: true, default: 0 })
-    is_onboarding_completed: boolean;
+  @Column("bigint", { name: "level", comment: "레벨", default: () => "'1'" })
+  level: string;
 
-    @Column({default: 1})
-    level: number;
-    
-    @Column({default: 0})
-    experience: number;
+  @Column("bigint", {
+    name: "experience",
+    comment: "경험치",
+    default: () => "'0'",
+  })
+  experience: string;
+
+  @Column("varchar", { name: "access_token", comment: "토큰", length: 1253 })
+  accessToken: string;
 }

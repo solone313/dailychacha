@@ -5,7 +5,7 @@ import { UserDTO } from "./dto/user.dto";
 import { UserRepository } from "./user.repository";
 import * as bcrypt from 'bcrypt';
 import { AppleUserDTO } from "./dto/appleUser.dto";
-import { User } from "src/domain/user.entity";
+import { Users } from "src/domain/user.entity";
 
 @Injectable()
 export class UserService{
@@ -15,11 +15,11 @@ export class UserService{
         ){}
 
         // 등록이 된 유저인지 확인
-        async findByFields(options: FindOneOptions<UserDTO>): Promise<User | undefined>{
+        async findByFields(options: FindOneOptions<UserDTO>): Promise<Users | undefined>{
             return await this.userRepository.findOne(options);
         }
 
-        async find_ByFields(options: FindOneOptions<AppleUserDTO>): Promise<User | undefined>{
+        async find_ByFields(options: FindOneOptions<AppleUserDTO>): Promise<Users | undefined>{
             return await this.userRepository.findOne(options);
         }
 
