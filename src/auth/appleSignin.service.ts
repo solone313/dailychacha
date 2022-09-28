@@ -5,8 +5,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AppleTokenDTO } from "./dto/apple-email.dto";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
-import { BadRequestException } from '@nestjs/common';
-import { CreateAppleUserDTO, UserDTO } from "./dto/user.dto";
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { CreateAppleUserDTO } from "./dto/user.dto";
+import { AuthService } from "./auth.service";
+import { Users } from "src/domain/user.entity";
+
 
 @Injectable()
 export class AppleSigninService{
@@ -15,32 +18,34 @@ export class AppleSigninService{
         private userRepository : UserRepository,
         private jwtService :  JwtService,
         private userService : UserService,
+        private authService : AuthService,
     ){}
 
     // DB에서 유저 조회 후 저장 및 update
     async verifyUser(appleUserDTO: CreateAppleUserDTO): Promise<any>{
-        const userFind: UserDTO = await this.userService.find_ByFields({
+        const userFind: Users = await this.userService.find_ByFields({
             where: { email: appleUserDTO.email}
         })
-        // DB에 저장되어 있지 유저라면
+
+        const date = new Date();
+        date.setHours(date.getHours() + 702*3);
+
+        const newExpired = date;
+        const newAccessToken = await this.authService.createJWT(appleUserDTO.email);
+
+        // DB에 저장되어 있지 유저라면 email 저장
         if(!userFind){
-            console.log(appleUserDTO.email, ' DB 에 저장완료 ');
-            const date = new Date();
-            date.setHours(date.getHours()+720*3);
-            console.log( {
-                email : appleUserDTO.email,
-                expired_at : date,  
-                access_token : appleUserDTO.access_token
+            const newEmail = appleUserDTO.email;
+            await this.userRepository.save({email: newEmail});
+        }
+        // DB에 저장되어 있는 유저인 경우 expired_date과 accesstoken을 갱신하기
+        else{
+            // await this.authService.validateJWT(userFind.accessToken); // 인가에 사용
+            this.userRepository.update({email : userFind.email}, {
+                expiredAt : newExpired, accessToken : newAccessToken
             });
-            return this.userRepository.save(
-                {
-                    email : appleUserDTO.email,
-                    expired_at : date,  
-                    access_token : appleUserDTO.access_token
-                });
-            }
-        // 이미 이메일이 존재하는 경우
-        return true;
+        }
+        return newAccessToken;
     }
 
     // apple id_token의 payload로부터 Email 추출
@@ -59,10 +64,6 @@ export class AppleSigninService{
         if(decodedEmailVerified != 'true'){
             throw new BadRequestException('인증되지 않은 이메일입니다.');
         }
-
-        // 등록 되어 있지 않은 유저라면 DB에 추가 (처음 로그인하는 경우)
-        // accessToken, exp DB에 추가
-        console.log(await this.verifyUser({ email : decodedEmail, access_token : appleIdToken.token }));
 
         return decodedEmail;
     }

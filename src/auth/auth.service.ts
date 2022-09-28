@@ -1,11 +1,10 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UpdateUserDTO, UserDTO } from './dto/user.dto';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
-import { Payload, signinPayload } from './security/payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { Users } from 'src/domain/user.entity';
-import { create } from 'domain';
+import { SigninPayload } from './security/payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +28,6 @@ export class AuthService {
     }
 
     // 로그인
-
     async validateUser(userDTO: UserDTO): Promise<{accessToken: string} | undefined>{
         const userFind: Users = await this.userService.findByFields({
             where: { email : userDTO.email }
@@ -45,33 +43,41 @@ export class AuthService {
         }
         
         return {
-            accessToken: await this.createJWT(userFind)
+            accessToken: await this.createJWT(userFind.email)
         };
     }
 
 
-    // create JWT and update Access Token, expired_at
-    async createJWT(user : Users): Promise<string>{
+    // create JWT (payload claim : email, expired_at)
+    async createJWT(email : string) {
         const date = new Date();
         date.setHours(date.getHours() + 702*3);
-    
-        const payload: signinPayload = { email: user.email};
-        const accessToken = this.jwtService.sign(payload);
-        // accessToken, expired_date 업데이트 (delete 후 다시 push 필요)
-        /*
-        this.userRepository.save({
-            access_token : accessToken,
-            expired_at : date
-        })
-        */
-        return accessToken;
+
+        console.log('date value : ', date.valueOf());
+        // user email과 expired_date payload 설정
+        const payload: SigninPayload = {
+            email : email,
+            exp : date.valueOf()
+        };
+
+        return this.jwtService.sign(payload);
     } 
 
 
     // 유저의 토큰 검증
-    async tokenValidateUser(payload: Payload): Promise<Users | undefined>{
-        return await this.userService.findByFields({
-            where: { email:payload.email }
+    async validateJWT(accessToken : string): Promise<Users | undefined>{
+        
+        const decodedPayload = this.jwtService.decode(accessToken);
+        console.log('해석한 jwt deocded : ', decodedPayload)
+        const user : Users = await this.userService.findByFields({
+            where : { email : decodedPayload['email'] }
         })
+
+        // expired_date이 현재 날짜보다 지났다면 다시 로그인 필요
+        if (user.expiredAt < new Date()){
+            console.log(user.expiredAt, "는 현재 시각 ", new Date(), "보다 앞서있습니다.");
+            throw new UnauthorizedException("다시 로그인이 필요합니다.");
+        }
+        return user;
     }
 }
