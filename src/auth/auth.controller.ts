@@ -55,7 +55,6 @@ export class AuthController {
     @UseGuards(AuthGuard())
     getUser(@Req() req: Request, @Res() resp: Response):any{
         const user: any=req.user;
-
-        return resp.json([{"email": user.email, "user_id":user.user_id}]);
+        return resp.json([{"email": user.email }]);
     }
 }
