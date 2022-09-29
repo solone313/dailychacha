@@ -10,9 +10,6 @@ export class CreateUserDTO{
     expired_at : Date;
 }
 
-export class UpdateUserDTO extends CreateUserDTO{
-}
-
 export class CreateAppleUserDTO{
     email: string;
     access_token: string;

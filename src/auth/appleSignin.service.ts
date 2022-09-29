@@ -5,7 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AppleTokenDTO } from "./dto/apple-email.dto";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { CreateAppleUserDTO } from "./dto/user.dto";
 import { AuthService } from "./auth.service";
 import { Users } from "src/domain/user.entity";
@@ -40,7 +40,6 @@ export class AppleSigninService{
         }
         // DB에 저장되어 있는 유저인 경우 expired_date과 accesstoken을 갱신하기
         else{
-            // await this.authService.validateJWT(userFind.accessToken); // 인가에 사용
             this.userRepository.update({email : userFind.email}, {
                 expiredAt : newExpired, accessToken : newAccessToken
             });

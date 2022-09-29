@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import * as bcrypt from 'bcrypt';
@@ -66,18 +66,18 @@ export class AuthService {
 
     // 유저의 토큰 검증
     async validateJWT(accessToken : string): Promise<Users | undefined>{
-        
-        const decodedPayload = this.jwtService.decode(accessToken);
-        console.log('해석한 jwt deocded : ', decodedPayload)
-        const user : Users = await this.userService.findByFields({
-            where : { email : decodedPayload['email'] }
+        const userFind : Users = await this.userService.findByFields({
+            where : { email : accessToken['email'] }
         })
 
+        if(!userFind){  // 해당 이메일로 가입된 유저가 없는 경우
+            throw new UnauthorizedException("로그인 실패");
+        }
+
         // expired_date이 현재 날짜보다 지났다면 다시 로그인 필요
-        if (user.expiredAt < new Date()){
-            console.log(user.expiredAt, "는 현재 시각 ", new Date(), "보다 앞서있습니다.");
+        if (accessToken['exp'] < new Date().valueOf()){
             throw new UnauthorizedException("다시 로그인이 필요합니다.");
         }
-        return user;
+        return userFind;
     }
 }
