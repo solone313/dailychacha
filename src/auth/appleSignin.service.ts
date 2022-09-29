@@ -28,7 +28,7 @@ export class AppleSigninService{
         })
 
         const date = new Date();
-        date.setHours(date.getHours() + 702*3);
+        date.setHours(date.getHours() + 720 * 3);
 
         const newExpired = date;
         const newAccessToken = await this.authService.createJWT(appleUserDTO.email);
@@ -36,7 +36,11 @@ export class AppleSigninService{
         // DB에 저장되어 있지 유저라면 email 저장
         if(!userFind){
             const newEmail = appleUserDTO.email;
-            await this.userRepository.save({email: newEmail});
+            await this.userRepository.save({
+                email: newEmail,
+                expiredAt : newExpired,
+                accessToken : newAccessToken
+            });
         }
         // DB에 저장되어 있는 유저인 경우 expired_date과 accesstoken을 갱신하기
         else{
@@ -65,14 +69,5 @@ export class AppleSigninService{
         }
 
         return decodedEmail;
-    }
-
-    // 애플 로그인 (decoding한 email을 이용한 JWT 생성)
-    async createToken(decodedEmail): Promise<{accessToken: string} | undefined>{
-        // 새로운 jwt 토큰의 payload 생성
-        const payload = decodedEmail;
-        return {
-            accessToken: this.jwtService.sign(payload)
-        };
     }
 }

@@ -49,9 +49,9 @@ export class AuthService {
 
 
     // create JWT (payload claim : email, expired_at)
-    async createJWT(email : string) {
+    async createJWT(email : string) : Promise<string>{
         const date = new Date();
-        date.setHours(date.getHours() + 702*3);
+        date.setHours(date.getHours() + 720 * 3);
 
         console.log('date value : ', date.valueOf());
         // user email과 expired_date payload 설정
@@ -66,6 +66,7 @@ export class AuthService {
 
     // 유저의 토큰 검증
     async validateJWT(accessToken : string): Promise<Users | undefined>{
+        console.log('accessToken : ', accessToken)
         const userFind : Users = await this.userService.findByFields({
             where : { email : accessToken['email'] }
         })
