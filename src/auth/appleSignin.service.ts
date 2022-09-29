@@ -22,7 +22,7 @@ export class AppleSigninService{
     ){}
 
     // DB에서 유저 조회 후 저장 및 update
-    async verifyUser(appleUserDTO: CreateAppleUserDTO): Promise<any>{
+    async verifyUser(appleUserDTO: CreateAppleUserDTO): Promise<string>{
         const userFind: Users = await this.userService.find_ByFields({
             where: { email: appleUserDTO.email}
         })
