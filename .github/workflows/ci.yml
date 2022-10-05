@@ -56,7 +56,7 @@ jobs:
           ls ${{ github.workspace }}
 
       - run: npm ci
-      - run: npm run test:e2e
+      # test 추가
   
   deploy:
     name: deploy
