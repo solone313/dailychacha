@@ -78,10 +78,10 @@ jobs:
         run: |
           docker stop go_cicd && docker rm go_cicd && docker rmi solone313/dailycahcah:squadrun
           docker image pull solone313/dailycahcah:squadrun
-          docker run -d -e DBUSER='${{ secrets.DBUSER }}' \
-            -e DBPASS='${{ secrets.DBPASS }}' \
-            -e DBNAME='${{ secrets.DBNAME }}' \
-            -e DBHOST='${{ secrets.DBHOST }}' \
+          docker run -d -e DB_USER='${{ secrets.DB_USER }}' \
+            -e DB_PASS='${{ secrets.DB_PASS }}' \
+            -e DB_NAME='${{ secrets.DB_NAME }}' \
+            -e DB_HOST='${{ secrets.DB_HOST }}' \
             -p 80:3000 \
             --name go_cicd \
             --restart always solone313/dailycahcah:squadrun
