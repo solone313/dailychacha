@@ -11,7 +11,7 @@ import { Users } from "src/domain/user.entity";
 export class UserService{
     constructor(
         @InjectRepository(UserRepository)
-        private userRepository: UserRepository
+        private userRepository: UserRepository,
         ){}
 
         // 등록이 된 유저인지 확인
@@ -28,7 +28,7 @@ export class UserService{
         async save(userDTO: UserDTO): Promise<UserDTO | undefined>{
             await this.transformPassword(userDTO);
             console.log(userDTO);
-            return await this.userRepository.save(userDTO);
+            return this.userRepository.save(userDTO);
         }
 
         // 비밀번호 암호화 (saltround를 10으로 지정)

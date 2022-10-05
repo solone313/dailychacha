@@ -10,6 +10,7 @@ function ormConfig(): TypeOrmModuleOptions{
             migrationsDir: 'src/migrations',
         },
         MIGRATIONS_RUN : false,
+        timezone : 'UTC'
     };
     const ormconfig : TypeOrmModuleOptions = {
         type: 'mysql',

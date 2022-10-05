@@ -1,8 +1,4 @@
-export interface Payload{
-    user_id: number;
+export interface SigninPayload{
     email: string;
-}
-
-export interface ApplePayload{
-    email: string;
+    exp: number;
 }

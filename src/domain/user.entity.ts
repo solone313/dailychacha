@@ -33,6 +33,6 @@ export class Users {
   })
   experience: string;
 
-  @Column("varchar", { name: "access_token", comment: "토큰", length: 1253 })
+  @Column("varchar", { name: "access_token", comment: "토큰", length: 1253, default: null })
   accessToken: string;
 }
