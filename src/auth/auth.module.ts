@@ -7,7 +7,6 @@ import { UserService } from './user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './security/passport.strategy';
-import { AppleService } from './apple.service';
 import { AppleSigninService } from './appleSignin.service';
 
 @Module({
@@ -15,12 +14,12 @@ import { AppleSigninService } from './appleSignin.service';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     JwtModule.register({
       secret: 'SECRET',
-      signOptions: { expiresIn: '90d'},
+      // signOptions: { expiresIn: "90d" },
     }),    
     PassportModule.register({defaultStrategy: 'jwt'})
   ],
   exports: [TypeOrmExModule],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtModule, JwtStrategy, AppleService, AppleSigninService]
+  providers: [AuthService, UserService, JwtModule, JwtStrategy, AppleSigninService]
 })
 export class AuthModule {}
