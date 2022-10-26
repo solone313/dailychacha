@@ -81,4 +81,15 @@ export class AuthService {
         }
         return userFind;
     }
+
+    // 로그아웃
+    async signOut(user : Users){
+        await this.userService.deleteToken(user);
+    }
+
+    // 탈퇴
+    async deleteInfo(user: Users){
+        await this.userService.remove(user);
+    }
+
 }

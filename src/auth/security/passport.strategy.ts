@@ -25,6 +25,11 @@ export class JwtStrategy extends PassportStrategy(Strategy){
             return done(new UnauthorizedException({message: '존재하지 않는 사용자입니다.'}));
         }
         
+        // accessToken null 값이라면 다시 로그인 필요
+        if (user.accessToken == null){
+            throw new UnauthorizedException("재 로그인 필요");
+        }
+
         // AccessToken의 exp와 현재 시각을 비교 (UTC 기준)
         if ( accessToken['exp'] < new Date().valueOf() ){
             console.log('Token expired at : ', new Date(accessToken['exp']).toUTCString());
