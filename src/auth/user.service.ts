@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOneOptions } from "typeorm";
 import { UserDTO } from "./dto/user.dto";
@@ -37,5 +37,26 @@ export class UserService{
                 user.password, 10,
             );
             return Promise.resolve();
+            }
+
+        // 삭제하기
+        async deleteToken(user: Users): Promise<any>{
+            const result =  this.userRepository.update(user.id,{
+                accessToken: null,
+                expiredAt: null,
+            })
+
+            if ((await result).affected === 0 ){
+                throw new NotFoundException();
+            }
         }
-}
+
+        // 회원 탈퇴
+        async remove(user: Users): Promise<any>{
+            const result = this.userRepository.delete(user.id);
+            if((await result).affected === 0){
+                throw new NotFoundException();
+            }
+        }
+    }
+

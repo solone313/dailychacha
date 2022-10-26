@@ -54,8 +54,25 @@ export class AuthController {
     // 유저 정보 가져오기
     @Get('/user')
     @UseGuards(AuthGuard())
-    getUser(@Req() req: Request, @Res() resp: Response): any {
+    getUser(@Req() req: Request): Promise<Users> {
         const user: any = req.user;
-        return resp.json([{ 'email' : user.email}]);
+        return user;
     }
+
+    // 로그아웃
+    @Post('/sign-out')
+    @UseGuards(AuthGuard())
+    signOut(@Req() req: Request) {
+        const user: any = req.user;
+        this.authService.signOut(user);
+    }
+
+    // 회원탈퇴
+    @Post('/delete')
+    @UseGuards(AuthGuard())
+    deleteInfo(@Req() req: Request){
+        const user: any = req.user;
+        this.authService.deleteInfo(user);
+    }
+
 }
